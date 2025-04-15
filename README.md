@@ -92,3 +92,55 @@ All functions include proper error handling:
 - Validation for non-existent languages
 - Checks for films not in stock
 - Appropriate error messages with RAISE EXCEPTION
+
+## Analysis of DVD Rental Database Functions
+
+The second part of this project involves analyzing and improving existing functions in the DVD Rental database.
+
+### Function Analysis
+
+I analyzed the following functions to understand their purpose and implementation:
+
+1. **film_in_stock** - Checks which copies of a film are in stock at a given store
+2. **film_not_in_stock** - Identifies which copies of a film are checked out at a given store
+3. **inventory_in_stock** - Determines if a specific inventory item is available for rental
+4. **get_customer_balance** - Calculates a customer's outstanding balance as of a specified date
+5. **inventory_held_by_customer** - Identifies which customer currently has a specific DVD
+6. **rewards_report** - Generates a report of customers qualifying for rewards
+7. **last_day** - Calculates the last day of the month for a given date
+
+### Function Improvements
+
+I identified and implemented several improvements to existing functions:
+
+1. **rewards_report** - Fixed a critical issue where the function was using dates that didn't match the database data
+   ```sql
+   -- Original (problematic)
+   last_month_start := CURRENT_DATE - '3 month'::interval;
+   
+   -- Fixed
+   SELECT DATE_TRUNC('month', MIN(payment_date))::DATE,
+          LAST_DAY(DATE_TRUNC('month', MAX(payment_date))::DATE)
+   INTO last_month_start, last_month_end
+   FROM payment;
+   ```
+
+2. **get_customer_balance** - Implemented missing business requirements
+   - Added replacement cost calculation for films that are more than twice their rental duration overdue
+   - Improved the overfees calculation to handle both returned and non-returned rentals
+
+3. **Function Consolidation** - Identified that `film_not_in_stock` could be removed and consolidated with `film_in_stock` using a boolean parameter
+
+### Utility Functions Analysis
+
+1. **group_concat** - An aggregate function for concatenating text values from multiple rows
+2. **last_updated** - A trigger function used to automatically update the `last_update` column
+
+### SQL Best Practices
+
+The analysis includes recommendations for:
+- Avoiding dynamic SQL when possible
+- Improving function security and performance
+- Better error handling and debugging techniques
+- Code consolidation to reduce redundancy
+
